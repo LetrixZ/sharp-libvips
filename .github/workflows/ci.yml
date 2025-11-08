@@ -15,7 +15,8 @@ jobs:
   build:
     permissions:
       contents: read
-    runs-on: [self-hosted, ${{ matrix.os-label }}]
+    name: build-${{ matrix.platform }}
+    runs-on: ${{ matrix.os-label }}
     needs: check-latest-versions
     strategy:
       fail-fast: false
