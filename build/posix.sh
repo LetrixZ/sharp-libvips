@@ -253,6 +253,53 @@ if [ -z "$WITHOUT_HIGHWAY" ]; then
   make install/strip
 fi
 
+mkdir ${DEPS}/brotli
+$CURL https://github.com/google/brotli/archive/v${VERSION_BROTLI}.tar.gz | tar xzC ${DEPS}/brotli --strip-components=1
+cd ${DEPS}/brotli
+cmake -G"Unix Makefiles" \
+  -DCMAKE_TOOLCHAIN_FILE=${ROOT}/Toolchain.cmake -DCMAKE_INSTALL_PREFIX=${TARGET} -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS=FALSE -DBROTLI_DISABLE_TESTS=ON
+make install/strip
+
+mkdir ${DEPS}/jxl
+$CURL https://github.com/libjxl/libjxl/archive/v${VERSION_JXL}.tar.gz | tar xzC ${DEPS}/jxl --strip-components=1
+cd ${DEPS}/jxl
+
+# Fetch required third-party dependencies
+mkdir -p third_party/skcms
+$CURL https://github.com/google/skcms/tarball/${VERSION_SKCMS} | tar xzC third_party/skcms --strip-components=1
+
+mkdir -p third_party/sjpeg
+$CURL https://github.com/webmproject/sjpeg/tarball/${VERSION_SJPEG} | tar xzC third_party/sjpeg --strip-components=1
+
+# LCMS is already built, but we need the git submodule structure for build
+mkdir -p third_party/lcms
+echo "project(lcms2-dummy LANGUAGES NONE)" > third_party/lcms/CMakeLists.txt
+echo "# Dummy file - using system lcms2" > third_party/lcms/README.md
+
+# Set up CMake flags based on whether Highway is available
+JXL_CMAKE_FLAGS="-DCMAKE_TOOLCHAIN_FILE=${ROOT}/Toolchain.cmake -DCMAKE_INSTALL_PREFIX=${TARGET} -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS=FALSE -DBUILD_TESTING=OFF -DJPEGXL_ENABLE_BENCHMARK=OFF -DJPEGXL_ENABLE_EXAMPLES=OFF \
+  -DJPEGXL_ENABLE_MANPAGES=OFF -DJPEGXL_ENABLE_PLUGINS=OFF -DJPEGXL_ENABLE_VIEWERS=OFF \
+  -DJPEGXL_ENABLE_TCMALLOC=OFF -DJPEGXL_ENABLE_TOOLS=OFF -DJPEGXL_FORCE_SYSTEM_BROTLI=ON \
+  -DJPEGXL_FORCE_SYSTEM_LCMS2=ON -DJPEGXL_ENABLE_SKCMS=ON -DJPEGXL_ENABLE_SJPEG=ON"
+
+if [ -z "$WITHOUT_HIGHWAY" ]; then
+  # Highway is built, use system version
+  mkdir -p third_party/highway
+  echo "project(hwy-dummy LANGUAGES NONE)" > third_party/highway/CMakeLists.txt
+  JXL_CMAKE_FLAGS="${JXL_CMAKE_FLAGS} -DJPEGXL_FORCE_SYSTEM_HWY=ON"
+else
+  # Highway is not built, fetch it as bundled dependency
+  mkdir -p third_party/highway
+  $CURL https://github.com/google/highway/archive/${VERSION_HWY}.tar.gz | tar xzC third_party/highway --strip-components=1
+  JXL_CMAKE_FLAGS="${JXL_CMAKE_FLAGS} -DJPEGXL_ENABLE_SKCMS=OFF"
+fi
+
+# Build with system dependencies where available
+CFLAGS="${CFLAGS} -O3" CXXFLAGS="${CXXFLAGS} -O3" cmake -G"Unix Makefiles" ${JXL_CMAKE_FLAGS}
+make install/strip
+
 build_freetype() {
   rm -rf ${DEPS}/freetype
   mkdir ${DEPS}/freetype
@@ -390,7 +437,7 @@ fi
 # Disable building man pages, gettext po files, tools, and (fuzz-)tests
 sed -i'.bak' "/subdir('man')/{N;N;N;N;d;}" meson.build
 CFLAGS="${CFLAGS} -O3" CXXFLAGS="${CXXFLAGS} -O3" meson setup _build --default-library=shared --buildtype=release --strip --prefix=${TARGET} ${MESON} \
-  -Ddeprecated=false -Dexamples=false -Dintrospection=disabled -Dmodules=disabled -Dcfitsio=disabled -Dfftw=disabled -Djpeg-xl=disabled \
+  -Ddeprecated=false -Dexamples=false -Dintrospection=disabled -Dmodules=disabled -Dcfitsio=disabled -Dfftw=disabled -Djpeg-xl=enabled \
   ${WITHOUT_HIGHWAY:+-Dhighway=disabled} -Dorc=disabled -Dmagick=disabled -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled \
   -Dopenjpeg=disabled -Dopenslide=disabled -Dpdfium=disabled -Dpoppler=disabled -Dquantizr=disabled \
   -Dppm=false -Danalyze=false -Dradiance=false \
@@ -450,6 +497,7 @@ cd ${TARGET}
 printf "{\n\
   \"aom\": \"${VERSION_AOM}\",\n\
   \"archive\": \"${VERSION_ARCHIVE}\",\n\
+  \"brotli\": \"${VERSION_BROTLI}\",\n\
   \"cairo\": \"${VERSION_CAIRO}\",\n\
   \"cgif\": \"${VERSION_CGIF}\",\n\
   \"exif\": \"${VERSION_EXIF}\",\n\
@@ -463,6 +511,7 @@ printf "{\n\
   \"heif\": \"${VERSION_HEIF}\",\n\
   \"highway\": \"${VERSION_HWY}\",\n\
   \"imagequant\": \"${VERSION_IMAGEQUANT}\",\n\
+  \"jxl\": \"${VERSION_JXL}\",\n\
   \"lcms\": \"${VERSION_LCMS}\",\n\
   \"mozjpeg\": \"${VERSION_MOZJPEG}\",\n\
   \"pango\": \"${VERSION_PANGO}\",\n\
