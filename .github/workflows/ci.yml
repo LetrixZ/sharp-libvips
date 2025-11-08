@@ -16,37 +16,37 @@ jobs:
     permissions:
       contents: read
     name: build-${{ matrix.platform }}
-    runs-on: ${{ matrix.os-label }}
+    runs-on: ${{ matrix.os }}
     needs: check-latest-versions
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os-label: 'ubuntu-24.04'
+          - os: 'ubuntu-24.04'
             platform: 'linux-x64'
-          - os-label: 'ubuntu-24.04'
+          - os: 'ubuntu-24.04'
             platform: 'linux-armv6'
-          - os-label: 'ubuntu-24.04'
+          - os: 'ubuntu-24.04'
             platform: 'linuxmusl-x64'
-          - os-label: 'ubuntu-24.04'
+          - os: 'ubuntu-24.04'
             platform: 'linux-ppc64le'
-          - os-label: 'ubuntu-24.04'
+          - os: 'ubuntu-24.04'
             platform: 'linux-riscv64'
-          - os-label: 'ubuntu-24.04'
+          - os: 'ubuntu-24.04'
             platform: 'linux-s390x'
-          - os-label: 'ubuntu-24.04'
+          - os: 'ubuntu-24.04'
             platform: 'dev-wasm32'
-          - os-label: 'ubuntu-24.04'
+          - os: 'ubuntu-24.04'
             platform: 'win32-ia32'
-          - os-label: 'ubuntu-24.04'
+          - os: 'ubuntu-24.04'
             platform: 'win32-x64'
-          - os-label: 'ubuntu-24.04'
+          - os: 'ubuntu-24.04'
             platform: 'win32-arm64v8'
-          - os-label: 'macos-26'
+          - os: 'macos-26'
             platform: 'darwin-arm64v8'
-          - os-label: 'ubuntu-24.04-arm'
+          - os: 'ubuntu-24.04-arm'
             platform: 'linux-arm64v8'
-          - os-label: 'ubuntu-24.04-arm'
+          - os: 'ubuntu-24.04-arm'
             platform: 'linuxmusl-arm64v8'
     steps:
       - name: Checkout
