@@ -4,21 +4,11 @@ on:
   - workflow_dispatch
 permissions: {}
 jobs:
-  check-latest-versions:
-    permissions:
-      contents: read
-    runs-on: [self-hosted, ubuntu-24.04]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Check latest versions
-        run: ./check-latest-versions.sh
   build:
     permissions:
       contents: read
     name: build-${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
-    needs: check-latest-versions
     strategy:
       fail-fast: false
       matrix:
