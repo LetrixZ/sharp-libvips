@@ -13,31 +13,31 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: 'ubuntu-24.04'
+          - os: ['self-hosted', 'Linux', 'X64']
             platform: 'linux-x64'
-          - os: 'ubuntu-24.04'
+          - os: ['self-hosted', 'Linux', 'X64']
             platform: 'linux-armv6'
-          - os: 'ubuntu-24.04'
+          - os: ['self-hosted', 'Linux', 'X64']
             platform: 'linuxmusl-x64'
-          - os: 'ubuntu-24.04'
+          - os: ['self-hosted', 'Linux', 'X64']
             platform: 'linux-ppc64le'
-          - os: 'ubuntu-24.04'
+          - os: ['self-hosted', 'Linux', 'X64']
             platform: 'linux-riscv64'
-          - os: 'ubuntu-24.04'
+          - os: ['self-hosted', 'Linux', 'X64']
             platform: 'linux-s390x'
-          - os: 'ubuntu-24.04'
+          - os: ['self-hosted', 'Linux', 'X64']
             platform: 'dev-wasm32'
-          - os: 'ubuntu-24.04'
+          - os: ['self-hosted', 'Linux', 'X64']
             platform: 'win32-ia32'
-          - os: 'ubuntu-24.04'
+          - os: ['self-hosted', 'Linux', 'X64']
             platform: 'win32-x64'
-          - os: 'ubuntu-24.04'
+          - os: ['self-hosted', 'Linux', 'X64']
             platform: 'win32-arm64v8'
-          - os: 'macos-26'
+          - os: ['self-hosted', 'macOS', 'ARM64']
             platform: 'darwin-arm64v8'
-          - os: 'ubuntu-24.04-arm'
+          - os: ['self-hosted', 'Linux', 'ARM64']
             platform: 'linux-arm64v8'
-          - os: 'ubuntu-24.04-arm'
+          - os: ['self-hosted', 'Linux', 'ARM64']
             platform: 'linuxmusl-arm64v8'
     steps:
       - name: Checkout
